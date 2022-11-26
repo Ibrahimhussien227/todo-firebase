@@ -1,13 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-import { AiOutlinePlus } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineUpload } from "react-icons/ai";
 import { BsCalendar } from "react-icons/bs";
 import { MdOutlinePublishedWithChanges } from "react-icons/md";
+import { set } from "date-fns";
+// import {
+//   ref,
+//   uploadBytesResumable,
+//   getDownloadURL,
+//   list,
+// } from "firebase/storage";
+
+// import { storage } from "../firebase/firebase";
 
 const TodoForm = ({ onSumbit, edit }) => {
   const [input, setInput] = useState(edit ? edit.value : "");
   const [day, setDay] = useState(edit ? edit.date.toDate() : new Date());
+  const [fileUpload, setFileUpload] = useState(null);
+  const [fileName, setFileName] = useState("");
 
   const inputRef = useRef(null);
 
@@ -18,10 +29,18 @@ const TodoForm = ({ onSumbit, edit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    onSumbit(input, day);
+    onSumbit(input, day, fileUpload);
 
     setInput("");
+    setFileUpload(null);
+    setFileName("");
     setDay(new Date());
+  };
+
+  const uploadChange = (e) => {
+    setFileUpload(e.target.files[0]);
+
+    setFileName(e.target.files[0].name);
   };
 
   return (
@@ -62,15 +81,35 @@ const TodoForm = ({ onSumbit, edit }) => {
               placeholder="Add Todo"
               ref={inputRef}
             />
+
             <div className="p-1">
               <div className="flex gap-4 justify-start items-center">
                 <p>Choose a day</p>
                 <BsCalendar />
               </div>
               <DatePicker value={day} onChange={(day) => setDay(day)} />
+              <div className="flex">
+                <label
+                  htmlFor="upload"
+                  className="block p-3 border text-sm w-14 bg-purple-500 text-slate-100 cursor-pointer"
+                >
+                  <AiOutlineUpload size={30} />
+                </label>
+                <input
+                  type="file"
+                  id="upload"
+                  name=""
+                  style={{ display: "none", visibility: "hidden" }}
+                  onChange={(e) => {
+                    uploadChange(e);
+                  }}
+                />
+                <p>{fileName}</p>
+              </div>
             </div>
+
             <button
-              className="border p-4 ml-2 bg-purple-500 text-slate-100"
+              className="border p-3 ml-2 bg-purple-500 text-slate-100"
               type="submit"
             >
               <AiOutlinePlus size={30} />

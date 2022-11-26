@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FiEdit2 } from "react-icons/fi";
+import { AiOutlineDownload } from "react-icons/ai";
 import TodoForm from "./TodoForm";
 
 const Todo = ({ todos, toggleComplete, deleteTodo, editTodo }) => {
@@ -56,6 +57,13 @@ const Todo = ({ todos, toggleComplete, deleteTodo, editTodo }) => {
             </div>
           </div>
           <div className="flex gap-5">
+            <a
+              className="cursor-pointer flex items-center"
+              href={todo.downloadUrl}
+            >
+              <AiOutlineDownload />
+            </a>
+
             <button
               onClick={() =>
                 setEdit({ id: todo.id, value: todo.text, date: todo.end_at })

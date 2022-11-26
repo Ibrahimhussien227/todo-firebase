@@ -10,13 +10,15 @@ import {
   Timestamp,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { db, storage } from "../firebase/firebase";
 
 import TodoForm from "./TodoForm";
 import Todo from "./Todo";
 
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
+  const [downloadUrl, setDownloadUrl] = useState(null);
 
   // Read todo from firebase
   useEffect(() => {
@@ -33,16 +35,25 @@ const TodoList = () => {
   }, []);
 
   // Create Todo
-  const addTodo = async (input, day) => {
-    if (input === "") {
-      alert("Please enter a valid todo");
+  const addTodo = async (input, day, fileUpload) => {
+    if (input === "" || fileUpload === null) {
+      alert("Please enter a valid todo and file");
       return;
     }
+
+    const fileRef = ref(storage, `/files/${fileUpload.name}`);
+
+    await uploadBytes(fileRef, fileUpload).then(async (snapshot) => {
+      await getDownloadURL(snapshot.ref).then((url) => {
+        setDownloadUrl(url);
+      });
+    });
 
     await addDoc(collection(db, "todos"), {
       text: input,
       created_at: serverTimestamp(),
       end_at: Timestamp.fromDate(day),
+      downloadUrl,
       completed: false,
     });
   };
